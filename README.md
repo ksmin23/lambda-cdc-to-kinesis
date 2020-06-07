@@ -110,7 +110,7 @@ CREATE TABLE pet (
   PRIMARY KEY (pkid),
   KEY (c_time),
   KEY (m_time)
-) ENGINE=InnoDB AUTO_INCREMENT=0;
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 mysql>
 INSERT INTO test.pet (name, `owner`, species, sex, birth, death) VALUES
@@ -137,3 +137,10 @@ $ pip install -r requirements.txt
 $ cd ./src/main/python/LoadCDCfromRDStoKinesis
 $ DRY_RUN=true python3 load_cdc_from_rds_to_kinesis.py
 ```
+
+# Reference
+* [Using AWS Lambda with Amazon SNS](https://docs.aws.amazon.com/lambda/latest/dg/with-sns.html)
+* [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
+* [dataset](https://dataset.readthedocs.io/en/latest/index.html) - toolkit for Python-based database access
+* [pymysql](https://pymysql.readthedocs.io/en/latest/) - a pure-Python MySQL client library
+* [mycli](https://www.mycli.net/) - a command line interface for MySQL, MariaDB, and Percona with auto-completion and syntax highlighting
