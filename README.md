@@ -65,6 +65,7 @@ WHERE c_time >= '2020-06-06 13:23:00' and c_time < '2020-06-06 13:24:00'
 
 # Deployment
 (1) Amazon SNS topic을 생성한다.
+
 (2) [AWS Lambda Layer](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)에 [dataset](https://dataset.readthedocs.io/en/latest/index.html), [pymysql](https://pymysql.readthedocs.io/en/latest/) 패키지를 각각 등록 한다.
 * [dataset](https://dataset.readthedocs.io/en/latest/index.html) - toolkit for Python-based database access
 * [pymysql](https://pymysql.readthedocs.io/en/latest/) - a pure-Python MySQL client library
@@ -79,6 +80,7 @@ $ mv python_modules python # 사용자가 지정한 패키지 디렉터리 이�
 $ zip -r dataset-lib.zip python/ # 필요한 패키지가 설치된 디렉터리를 압축함
 $ aws s3 cp dataset-lib.zip s3://my-lambda-layer-packages/python/ # 압축한 패키지를 s3에 업로드 한 후, lambda layer에 패키지를 등록할 때, s3 위치를 등록하면 됨
 ```
+
 (3) Step 1에서 생성한 Amazon SNS 이벤트에 의해서 trigger 되는 AWS Lambda function을 생성한다.
 lambda function 코드는 `src/main/python/LoadCDCfromRDStoKinesis` 디렉터리에 있는 코드를 참고해서 생성한다.
 
