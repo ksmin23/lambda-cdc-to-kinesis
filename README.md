@@ -1,5 +1,6 @@
 # Description
 AWS Lamba를 이용해서 MySQL에서 CDC(Change Data Capture)를 Kinesis Data Streams로 전송하는 lambda function
+
 ![lambda-cdc-to-kinesis-architecture](lambda-cdc-to-kinesis.svg)
 
 # How it works
