@@ -126,7 +126,7 @@ INSERT INTO test.pet (name, `owner`, species, sex, birth, death) VALUES
 ("Slim", "Benny", "snake", "m", "1996-04-29", NULL);
 ```
 
-(2) 소스 코드를 git cloen 한 후에, 개발 환경 디렉터리(에: lambda-cdc-to-kinesis)를 생성 한다.
+(2) 소스 코드를 git clone 한 후에, 개발 환경 디렉터리(에: lambda-cdc-to-kinesis)를 생성 한다.
 ```shell script
 $ python3 -m venv lambda-cdc-to-kinesis
 $ cd ./lambda-cdc-to-kinesis
