@@ -18,6 +18,41 @@ Amazon SNS 이벤트 -> Lambda Function 에서 RDS 데이터 덤프 -> Kinesis D
   "kinesis_max_put_records": 100
 }
 ```
+
+예를 들어, `mysql_cdc` 라는 AWS SNS topic에 boto3 라이브러리를 이용해서 SNS를 아래와 같으 보낼 수 있다. 
+```shell script
+$ python
+Python 3.6.9 (default, Apr 18 2020, 01:56:04)
+[GCC 8.4.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+>>> import boto3
+>>> import json
+>>>
+>>> rds_cdc_query = {
+...   "db_host": "cdc-test.rds.amazonaws.com",
+...   "db_user": "db_user",
+...   "db_password": "db_password",
+...   "database": "test",
+...   "table": "pet",
+...   "columns": "name, owner, species, sex, DATE_FORMAT(birth, '%Y-%m-%d') AS birth",
+...   "where_clause": "c_time >= '2020-06-06 13:23:00' AND c_time < '2020-06-06 13:24:00'",
+...   "primary_column": "pkid",
+...   "kinesis_max_put_records": 100
+... }
+>>> msg = json.dumps(rds_cdc_query)
+>>> type(msg)
+<class 'str'>
+>>>
+>>> sns_client = boto3.client('sns', region_name='us-east-1')
+>>> sns_client.publish(
+...     TopicArn='arn:aws:sns:us-east-1:123456789012:mysql_cdc',
+...     Message=msg,
+...     Subject='CDC from test.pet'
+... )
+{'MessageId': 'd17d598f-7288-5aca-931b-0ed93f3ff836', 'ResponseMetadata': {'RequestId': '4e1adbb6-881f-567f-a711-8ce0c5a8c483', 'HTTPStatusCode': 200, 'HTTPHeaders': {'x-amzn-requestid': '4e1adbb6-881f-567f-a711-8ce0c5a8c483', 'content-type': 'text/xml', 'content-length': '294', 'date': 'Sun, 07 Jun 2020 02:05:43 GMT'}, 'RetryAttempts': 0}}
+>>>
+```
+
 (2) AWS Lambda function에서 SNS 메시지를 내용을 바탕으로 아래와 같은 쿼리를 실행하고,
   실생 결과를 Kinesis Data Streams에 전송 한다.
 ```shell script
@@ -28,7 +63,7 @@ WHERE c_time >= '2020-06-06 13:23:00' and c_time < '2020-06-06 13:24:00'
 
 # Deployment
 (1) Amazon SNS topic을 생성한다.
-(2) AWS Lambda Layer에 [dataset](https://dataset.readthedocs.io/en/latest/index.html), [pymysql](https://pymysql.readthedocs.io/en/latest/) 패키지를 각각 등록 한다.
+(2) [AWS Lambda Layer](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)에 [dataset](https://dataset.readthedocs.io/en/latest/index.html), [pymysql](https://pymysql.readthedocs.io/en/latest/) 패키지를 각각 등록 한다.
 * [dataset](https://dataset.readthedocs.io/en/latest/index.html) - toolkit for Python-based database access
 * [pymysql](https://pymysql.readthedocs.io/en/latest/) - a pure-Python MySQL client library
 * AWS Lambda Layer에 등록할 Python 패키지 생성 예제: dataset
