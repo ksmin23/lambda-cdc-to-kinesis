@@ -21,7 +21,7 @@ Amazon SNS 이벤트 -> Lambda Function 에서 RDS 데이터 덤프 -> Kinesis D
 }
 ```
 
-예를 들어, `mysql_cdc` 라는 AWS SNS topic에 boto3 라이브러리를 이용해서 SNS를 아래와 같으 보낼 수 있다. 
+예를 들어, `mysql_cdc` 라는 AWS SNS topic에 boto3 라이브러리를 이용해서 SNS를 아래와 같이 보낼 수 있다. 
 ```shell script
 $ python
 Python 3.6.9 (default, Apr 18 2020, 01:56:04)
