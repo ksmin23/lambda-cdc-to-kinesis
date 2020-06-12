@@ -140,9 +140,10 @@ $ cd ./src/main/python/LoadCDCfromRDStoKinesis
 $ DRY_RUN=true python3 load_cdc_from_rds_to_kinesis.py
 ```
 
-# Reference
+# References
 * [Using AWS Lambda with Amazon SNS](https://docs.aws.amazon.com/lambda/latest/dg/with-sns.html)
 * [AWS Lambda layers](https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html)
 * [dataset](https://dataset.readthedocs.io/en/latest/index.html) - toolkit for Python-based database access
 * [pymysql](https://pymysql.readthedocs.io/en/latest/) - a pure-Python MySQL client library
 * [mycli](https://www.mycli.net/) - a command line interface for MySQL, MariaDB, and Percona with auto-completion and syntax highlighting
+* [Loading CDC from MySQL to S3 using Embulk](https://github.com/ksmin23/embulk-tutorial-cdc-from-mysql-to-s3)
