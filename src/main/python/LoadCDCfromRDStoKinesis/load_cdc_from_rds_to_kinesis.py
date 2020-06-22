@@ -5,9 +5,15 @@
 import sys
 import os
 import json
+import itertools
 
 import dataset
 import boto3
+
+KB = 1024
+MB = 1024 * KB
+DEFAULT_MAX_RECORD_SIZE = 1*MB
+DEFAULT_MAX_RECORD_COUNT = 1000
 
 DRY_RUN = (os.getenv('DRY_RUN', 'false') == 'true')
 
@@ -35,22 +41,49 @@ def write_records_to_kinesis(kinesis_client, kinesis_stream_name, records):
 
   MAX_RETRY_COUNT = 3
 
+  retry_record_list = []
   record_list = gen_records()
   for _ in range(MAX_RETRY_COUNT):
     try:
       if DRY_RUN:
         print("[DEBUG] Kinesis PutRecords:\n", record_list, file=sys.stderr)
-      else:
-        response = kinesis_client.put_records(Records=record_list, StreamName=kinesis_stream_name)
-        print("[DEBUG]", response, file=sys.stderr)
-      break
+        break
+
+      response = kinesis_client.put_records(Records=record_list, StreamName=kinesis_stream_name)
+      print("[DEBUG]", response, file=sys.stderr)
     except Exception as ex:
       import time
 
       traceback.print_exc()
       time.sleep(2)
+    else:
+      if response['FailedRecordCount'] > 0:
+        error_list = [e.get('ErrorCode', None) for e in response['Records']]
+        failed_record_index_list = [i for i, v in itertools.izip(range(len(error_list)), error_list) if v]
+        failed_record_list = [record_list[i] for i in failed_record_index_list]
+        retry_record_list.extend(failed_record_list)
   else:
     raise RuntimeError('[ERROR] Failed to put_records into kinesis stream: {}'.format(kinesis_stream_name))
+
+  for _ in range(MAX_RETRY_COUNT):
+    chunk_size = 50
+    all_record_list = [retry_record_list[e:e+chunk_size] for e in range(0, len(retry_record_list), chunk_size)]
+    retry_record_list = []
+    for record_list in all_record_list:
+      try:
+        print('[INFO] retry to inject to kinesis ...', file=sys.stderr)
+        response = kinesis_client.put_records(Records=record_list, StreamName=KINESIS_STREAM_NAME)
+      except Exception as ex:
+        import time
+
+        traceback.print_exc()
+        time.sleep(2)
+      else:
+        if response['FailedRecordCount'] > 0:
+          error_list = [e.get('ErrorCode', None) for e in response['Records']]
+          failed_record_index_list = [i for i, v in itertools.izip(range(len(error_list)), error_list) if v]
+          failed_record_list = [record_list[i] for i in failed_record_index_list]
+          retry_record_list.extend(failed_record_list)
 
 
 def lambda_handler(event, context):
